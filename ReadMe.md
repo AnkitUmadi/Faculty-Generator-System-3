@@ -655,9 +655,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+- GitHub: Ankit Umadi
+
 
 ---
 
@@ -670,16 +669,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
-
-Need help? Here's how to get support:
-
-1. **Check Documentation**: Read this README thoroughly
-2. **Search Issues**: Check [existing issues](https://github.com/yourusername/faculty-timetable-generator/issues)
-3. **Open New Issue**: Create a [new issue](https://github.com/yourusername/faculty-timetable-generator/issues/new) with details
-4. **Email**: Contact at your.email@example.com
-
----
 
 ## 🌟 Show Your Support
 
@@ -692,5 +681,6 @@ If you find this project helpful, please give it a ⭐️ on GitHub!
 **Made with ❤️ for Educational Institutions**
 
 [⬆ Back to Top](#-faculty-management--timetable-generator)
+
 
 </div>
