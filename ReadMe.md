@@ -1,686 +1,389 @@
-# 🎓 Faculty Management & Timetable Generator
+# 🗓️ Faculty Timetable Management System
 
-A comprehensive full-stack web application designed for educational institutions to manage faculty members and automatically generate optimized department-wise timetables with intelligent conflict resolution.
-
-![MERN Stack](https://img.shields.io/badge/Stack-MERN-green?style=for-the-badge)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
-![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+A full-stack web application for managing faculty, assigning subjects to sections, and automatically generating conflict-free timetables for engineering college departments.
 
 ---
 
 ## 📋 Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Usage](#-usage)
-- [Project Structure](#-project-structure)
-- [API Documentation](#-api-documentation)
-- [Database Schema](#-database-schema)
-- [Screenshots](#-screenshots)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Contact](#-contact)
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Features](#features)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+  - [Seeding the Database](#seeding-the-database)
+- [Running the App](#running-the-app)
+- [API Reference](#api-reference)
+- [Pages & Components](#pages--components)
+- [Database Models](#database-models)
+- [Timetable Generation Logic](#timetable-generation-logic)
 
 ---
 
-## ✨ Features
+## Overview
 
-### 🎯 Core Functionality
-- **Faculty Management System**
-  - Add, edit, and delete faculty members
-  - Associate faculty with subjects and departments
-  - Track faculty availability by day and period (P1-P9)
-  - Support for multiple departments (CSE, ECE, EE, ME)
-
-- **Intelligent Timetable Generation**
-  - Automatic timetable generation per department
-  - Conflict-free scheduling algorithm
-  - Fair distribution of faculty across time slots
-  - Respects faculty availability preferences
-
-- **Flexible Configuration**
-  - Configurable working hours (e.g., 7:00 AM - 5:00 PM)
-  - Adjustable period duration (30-120 minutes)
-  - Dynamic number of periods (1-9 per day)
-  - Multiple break time configurations (Lunch Break, Short Break)
-  - Enable/disable break times as needed
-
-### 📊 Additional Features
-- **Real-time Validation**: Prevents scheduling conflicts and validates data integrity
-- **PDF Export**: Print-ready timetable generation
-- **Responsive Design**: Works seamlessly on desktop and tablet devices
-- **Dynamic Period Display**: Faculty availability table adapts to configured period count
-- **Department Segregation**: Complete isolation of departmental data
+This system allows college administrators to:
+- Manage faculty members and their subject/section assignments
+- Configure working hours, period durations, and break times
+- Auto-generate timetables per section with conflict detection
+- View reports and faculty load analysis
+- Export timetables to PDF
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-### Frontend
-- **React.js** (v18+) - UI library
-- **React Router** (v6) - Client-side routing
-- **React Select** - Enhanced dropdown components
-- **Vanilla CSS** - Styling with inline styles
-
-### Backend
-- **Node.js** (v14+) - JavaScript runtime
-- **Express.js** (v4) - Web application framework
-- **MongoDB** (v4.4+) - NoSQL database
-- **Mongoose** (v6) - MongoDB object modeling
-
-### Development Tools
-- **nodemon** - Auto-restart development server
-- **dotenv** - Environment variable management
-- **CORS** - Cross-origin resource sharing
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, React Router v6, React-Select |
+| Backend | Node.js, Express.js |
+| Database | MongoDB (Mongoose ODM) |
+| Build Tool | Vite |
+| Styling | Inline CSS (no external UI library) |
 
 ---
 
-## 📋 Prerequisites
+## Project Structure
 
-Before running this application, ensure you have the following installed:
-
-- [Node.js](https://nodejs.org/) (v14.0 or higher)
-- [MongoDB](https://www.mongodb.com/try/download/community) (v4.4 or higher)
-- npm (comes with Node.js) or yarn
-- Git (for cloning the repository)
-
-### System Requirements
-- **RAM**: 4GB minimum, 8GB recommended
-- **Storage**: 500MB free space
-- **OS**: Windows 10+, macOS 10.14+, or Linux
-
----
-
-## 🚀 Installation
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/YOUR_USERNAME/faculty-timetable-generator.git
-cd faculty-timetable-generator
+```
+NOTSOL/
+├── node_modules/
+└── server/
+    ├── client/                         # React Frontend (Vite)
+    │   ├── public/
+    │   │   └── vite.svg
+    │   └── src/
+    │       ├── assets/
+    │       │   ├── faculty-logo.png
+    │       │   └── logo.png
+    │       ├── components/
+    │       │   ├── DashboardCard.jsx   # Reusable card component
+    │       │   └── Header.jsx          # Top navigation header
+    │       ├── constants/
+    │       │   └── subjects.js         # Subject groups by department
+    │       ├── pages/
+    │       │   ├── AdminDashboard.jsx  # Home/landing page
+    │       │   ├── FacultyManagement.jsx
+    │       │   ├── Reports.jsx
+    │       │   ├── Settings.jsx
+    │       │   └── TimetableView.jsx
+    │       ├── services/
+    │       │   └── api.js              # API helper functions
+    │       ├── App.jsx                 # Route definitions
+    │       └── main.jsx                # React entry point
+    │
+    ├── config/
+    │   └── db.js                       # MongoDB connection
+    ├── controllers/
+    │   ├── facultyController.js
+    │   ├── sectionController.js
+    │   ├── settingsController.js
+    │   ├── subjectController.js
+    │   └── timetableController.js
+    ├── models/
+    │   ├── Department.js
+    │   ├── Faculty.js
+    │   ├── Section.js
+    │   ├── Settings.js
+    │   ├── Subject.js
+    │   └── Timetable.js
+    ├── routes/
+    │   ├── departmentRoutes.js
+    │   ├── facultyRoutes.js
+    │   ├── sectionRoutes.js
+    │   ├── settingsRoutes.js
+    │   ├── subjectRoutes.js
+    │   └── timetableRoutes.js
+    ├── seed/
+    │   ├── migrateFacultySubjectDepartment.js
+    │   ├── seedDepartmentsAndSubjects.js
+    │   └── seedSections.js
+    ├── utils/
+    │   └── timetableGenerator.js       # Core generation algorithm
+    ├── .env
+    └── index.js                        # Express server entry point
 ```
 
-### 2. Install Backend Dependencies
+---
+
+## Features
+
+### ✅ Faculty Management
+- Add, edit, and delete faculty members
+- Assign each faculty member a subject, department (auto-filled), and section
+- Visual slot picker to set faculty availability (days × periods grid)
+- **Real-time conflict detection** — blocked slots shown in red when:
+  - The same faculty member is already assigned to another section at that time
+  - Another faculty member is already teaching the selected section at that time
+
+### ✅ Timetable Generation
+- Select department and section to generate a timetable
+- Algorithm fills slots based on faculty availability
+- Distributes load evenly (least-used faculty first)
+- Saves/updates timetable to the database
+- Export to PDF via browser print
+
+### ✅ Settings
+- Configure school working hours (start/end time)
+- Set period duration (30–120 minutes)
+- Set number of periods per day (1–9)
+- Enable/disable break times (Lunch Break, Short Break)
+- Dynamic schedule calculation with break insertion logic
+
+### ✅ Reports
+- Select a department to view summary stats
+- Total faculty count, filled slots, empty slots
+- Timetable utilization progress bar
+- Faculty load table with overload detection (> 2 periods = Overloaded)
+
+### ✅ Supported Departments & Subjects
+
+| Department | Code | Subjects |
+|-----------|------|---------|
+| Computer Science Engineering | CSE | DSA, OS, DBMS, CN, SE, AI, ML, COA, CD, DS |
+| Electronics & Communication Engg. | ECE | DE, AE, VLSI, DSP, EMFT, CS-ECE, MIC |
+| Electrical Engineering | EE | NA, PS, PE, EM, CS-EE, HVE |
+| Mechanical Engineering | ME | TOM, SOM, FM, HT, IC, MD, CAM |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js v18+
+- MongoDB (local or Atlas)
+- npm
+
+### Installation
 
 ```bash
-cd server
+# 1. Clone the repository
+git clone <repo-url>
+cd NOTSOL/server
+
+# 2. Install backend dependencies
 npm install
-```
 
-**Backend Dependencies:**
-- express
-- mongoose
-- cors
-- dotenv
-- nodemon (dev dependency)
-
-### 3. Install Frontend Dependencies
-
-```bash
-cd ../client
-npm install
-```
-
-**Frontend Dependencies:**
-- react
-- react-dom
-- react-router-dom
-- react-select
-
-### 4. Set Up Environment Variables
-
-Create a `.env` file in the `server` directory:
-
-```bash
-cd ../server
-cp .env.example .env
-```
-
-Edit the `.env` file with your configuration:
-
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-
-# MongoDB Configuration
-MONGO_URI=mongodb://localhost:27017/faculty_timetable
-
-# CORS Configuration
-CLIENT_URL=http://localhost:3000
-```
-
-**For MongoDB Atlas (Cloud):**
-```env
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/faculty_timetable?retryWrites=true&w=majority
-```
-
-### 5. Seed the Database
-
-Populate the database with departments and subjects:
-
-```bash
-cd server
-node seed/seedDepartmentsAndSubjects.js
-```
-
-**Expected Output:**
-```
-✅ Connected to MongoDB
-🗑️  Cleared existing departments and subjects
-✅ Created department: Computer Science Engineering (CSE)
-   ✅ Created subject: DSA - Data Structures & Algorithms
-   ✅ Created subject: OS - Operating Systems
-   ...
-🎉 Successfully seeded all departments and subjects!
-```
-
----
-
-## 🎮 Usage
-
-### Starting the Application
-
-#### Terminal 1 - Backend Server
-```bash
-cd server
-npm start
-```
-
-Server will run on `http://localhost:5000`
-
-#### Terminal 2 - Frontend Application
-```bash
+# 3. Install frontend dependencies
 cd client
-npm start
+npm install
+cd ..
 ```
 
-Frontend will run on `http://localhost:3000`
+### Environment Variables
 
-### Default Access
+Create a `.env` file in `server/`:
 
-Open your browser and navigate to:
+```env
+MONGO_URI=mongodb://localhost:27017/timetable_db
+PORT=5000
 ```
-http://localhost:3000
+
+### Seeding the Database
+
+Run these scripts **once** in order before starting the app:
+
+```bash
+# Step 1: Seed departments and subjects
+node seed/seedDepartmentsAndSubjects.js
+
+# Step 2: Seed sections (2nd–4th year, A–L per department)
+node seed/seedSections.js
 ```
 
----
+> **Note:** The seed scripts clear existing data before inserting. Do not re-run them after adding faculty data.
 
-## 📖 Configuration
+If you have existing faculty records with old string-based subject codes, run the migration:
 
-### Application Settings
-
-Navigate to **Settings** page to configure:
-
-1. **Working Hours**
-   - Start Time: e.g., `9:00 AM`
-   - End Time: e.g., `5:00 PM`
-
-2. **Period Configuration**
-   - Minutes per period: `30-120 minutes`
-   - Number of periods: `1-9 periods per day`
-
-3. **Break Times**
-   - Lunch Break: `1:00 PM - 2:00 PM` (enabled/disabled)
-   - Short Break: `11:00 AM - 11:15 AM` (enabled/disabled)
-
-**Note:** Faculty Management availability table automatically adapts to show the configured number of periods.
-
----
-
-## 📁 Project Structure
-
-```
-faculty-timetable-generator/
-│
-├── client/                          # Frontend React Application
-│   ├── public/
-│   │   ├── index.html
-│   │   └── favicon.ico
-│   │
-│   ├── src/
-│   │   ├── components/              # Reusable Components
-│   │   │   └── Header.jsx           # Navigation header
-│   │   │
-│   │   ├── constants/               # Application Constants
-│   │   │   └── subjects.js          # Subject definitions by department
-│   │   │
-│   │   ├── pages/                   # Page Components
-│   │   │   ├── AdminDashboard.jsx   # Main dashboard
-│   │   │   ├── FacultyManagement.jsx # Faculty CRUD operations
-│   │   │   ├── TimetableView.jsx    # Timetable generation & display
-│   │   │   ├── Reports.jsx          # Reporting module
-│   │   │   └── Settings.jsx         # Application configuration
-│   │   │
-│   │   ├── App.js                   # Main app component
-│   │   └── index.js                 # React entry point
-│   │
-│   └── package.json                 # Frontend dependencies
-│
-├── server/                          # Backend Node.js Application
-│   ├── config/
-│   │   └── db.js                    # MongoDB connection
-│   │
-│   ├── controllers/                 # Business Logic
-│   │   ├── departmentController.js  # Department operations
-│   │   ├── facultyController.js     # Faculty CRUD logic
-│   │   ├── subjectController.js     # Subject operations
-│   │   ├── timetableController.js   # Timetable generation
-│   │   └── settingsController.js    # Settings management
-│   │
-│   ├── models/                      # Mongoose Schemas
-│   │   ├── Department.js            # Department model
-│   │   ├── Faculty.js               # Faculty model
-│   │   ├── Subject.js               # Subject model
-│   │   ├── Timetable.js             # Timetable model
-│   │   └── Settings.js              # Settings model
-│   │
-│   ├── routes/                      # API Routes
-│   │   ├── departmentRoutes.js      # /api/departments
-│   │   ├── facultyRoutes.js         # /api/faculty
-│   │   ├── subjectRoutes.js         # /api/subjects
-│   │   ├── timetableRoutes.js       # /api/timetable
-│   │   └── settingsRoutes.js        # /api/settings
-│   │
-│   ├── seed/                        # Database Seeding
-│   │   ├── seedDepartmentsAndSubjects.js
-│   │   └── migrateFacultySubjectDepartment.js
-│   │
-│   ├── utils/                       # Utility Functions
-│   │   └── timetableGenerator.js    # Timetable generation algorithm
-│   │
-│   ├── .env.example                 # Environment template
-│   ├── index.js                     # Server entry point
-│   └── package.json                 # Backend dependencies
-│
-├── .gitignore                       # Git ignore rules
-└── README.md                        # Project documentation
+```bash
+node seed/migrateFacultySubjectDepartment.js
 ```
 
 ---
 
-## 🔌 API Documentation
+## Running the App
 
-### Base URL
-```
-http://localhost:5000/api
-```
+```bash
+# From the server/ directory
 
-### Endpoints
+# Start backend (port 5000)
+node index.js
 
-#### 📚 Departments
-```http
-GET    /departments              # Get all departments
-GET    /departments/:id          # Get department by ID
-POST   /departments              # Create department
-PUT    /departments/:id          # Update department
-DELETE /departments/:id          # Delete department
+# In a separate terminal — start frontend (port 5173)
+cd client
+npm run dev
 ```
 
-#### 👨‍🏫 Faculty
-```http
-GET    /faculty                  # Get all faculty
-GET    /faculty?departmentId=:id # Get faculty by department
-POST   /faculty                  # Add new faculty
-PUT    /faculty/:id              # Update faculty
-DELETE /faculty/:id              # Delete faculty
-```
+Visit: [http://localhost:5173](http://localhost:5173)
 
-**Request Body (POST/PUT):**
+---
+
+## API Reference
+
+### Faculty
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/faculty` | Get all faculty |
+| GET | `/api/faculty/:id` | Get faculty by ID |
+| POST | `/api/faculty` | Create faculty |
+| PUT | `/api/faculty/:id` | Update faculty |
+| DELETE | `/api/faculty/:id` | Delete faculty |
+
+**POST/PUT body:**
 ```json
 {
-  "name": "Dr. John Doe",
+  "name": "Dr. Smith",
   "subjectCode": "DSA",
+  "section": "<section_object_id>",
   "availability": [
-    {
-      "day": "Monday",
-      "periods": [1, 2, 3]
-    },
-    {
-      "day": "Tuesday",
-      "periods": [4, 5]
-    }
+    { "day": "Monday", "periods": [1, 2] },
+    { "day": "Wednesday", "periods": [3] }
   ]
 }
 ```
 
-#### 📖 Subjects
-```http
-GET    /subjects                 # Get all subjects
-GET    /subjects/:id             # Get subject by ID
-POST   /subjects                 # Create subject
-```
+### Sections
 
-#### 📅 Timetable
-```http
-POST   /timetable/generate?departmentId=:id  # Generate timetable
-GET    /timetable?departmentId=:id           # Get timetable
-DELETE /timetable?departmentId=:id           # Delete timetable
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/sections` | Get all sections |
+| GET | `/api/sections?departmentId=xxx` | Get sections by department (year > 1) |
+| POST | `/api/sections` | Create section |
+| PUT | `/api/sections/:id` | Update section |
+| DELETE | `/api/sections/:id` | Delete section |
 
-#### ⚙️ Settings
-```http
-GET    /settings                 # Get current settings
-PUT    /settings                 # Update settings
-POST   /settings/reset           # Reset to default
-```
+### Timetable
 
-**Settings Schema:**
-```json
-{
-  "workingHours": {
-    "startTime": "9:00 AM",
-    "endTime": "5:00 PM"
-  },
-  "periodDuration": 60,
-  "numberOfPeriods": 5,
-  "breakTimes": [
-    {
-      "name": "Lunch Break",
-      "startTime": "1:00 PM",
-      "endTime": "2:00 PM",
-      "enabled": true
-    }
-  ]
-}
-```
-
----
-
-## 💾 Database Schema
-
-### Faculty Collection
-```javascript
-{
-  _id: ObjectId,
-  name: String,
-  subject: ObjectId (ref: Subject),
-  department: ObjectId (ref: Department),
-  availability: [
-    {
-      day: String,
-      periods: [Number]
-    }
-  ],
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Subject Collection
-```javascript
-{
-  _id: ObjectId,
-  name: String,
-  code: String,
-  department: ObjectId (ref: Department),
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Department Collection
-```javascript
-{
-  _id: ObjectId,
-  name: String,
-  code: String,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Timetable Collection
-```javascript
-{
-  _id: ObjectId,
-  department: ObjectId (ref: Department),
-  timetable: {
-    Monday: {
-      1: {
-        facultyId: ObjectId,
-        facultyName: String,
-        subjectId: ObjectId,
-        subjectName: String,
-        subjectCode: String
-      },
-      2: { ... },
-      // ... up to period 9
-    },
-    Tuesday: { ... },
-    // ... other days
-  },
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Settings Collection
-```javascript
-{
-  _id: ObjectId,
-  workingHours: {
-    startTime: String,
-    endTime: String
-  },
-  periodDuration: Number,
-  numberOfPeriods: Number,
-  breakTimes: [
-    {
-      name: String,
-      startTime: String,
-      endTime: String,
-      enabled: Boolean
-    }
-  ],
-  singleton: Boolean,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
----
-
-## 📸 Screenshots
-
-### Admin Dashboard
-The central hub for navigating to all modules.
-
-### Faculty Management
-- Add/Edit/Delete faculty members
-- Set availability per day and period
-- Dynamic period display based on settings
-
-### Timetable View
-- Select department
-- Generate optimized timetable
-- View schedule with break times
-- Export to PDF
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/timetable/generate?departmentId=xxx&sectionId=xxx` | Generate timetable |
+| GET | `/api/timetable?departmentId=xxx&sectionId=xxx` | Get saved timetable |
+| DELETE | `/api/timetable?departmentId=xxx` | Delete timetable |
 
 ### Settings
-- Configure working hours
-- Set period duration (30-120 min)
-- Configure number of periods (1-9)
-- Manage break times
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/settings` | Get settings (creates defaults if none exist) |
+| PUT | `/api/settings` | Update settings |
+| POST | `/api/settings/reset` | Reset to defaults |
+
+### Departments & Subjects
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/departments` | Get all departments |
+| GET | `/api/subjects` | Get all subjects (populated with department) |
 
 ---
 
-## 🎯 Key Features Explained
+## Pages & Components
 
-### Intelligent Timetable Algorithm
+### Pages
 
-The timetable generator uses a **least-used-first** algorithm:
+| Page | Route | Description |
+|------|-------|-------------|
+| Admin Dashboard | `/` | Entry point with navigation cards |
+| Faculty Management | `/faculty` | Add/edit/delete faculty with slot picker |
+| Timetable View | `/timetable` | Generate and display timetables |
+| Reports | `/reports` | Department-level stats and faculty load |
+| Settings | `/settings` | Configure periods, hours, and breaks |
 
-1. **Initialization**: Creates empty timetable grid (Days × Periods)
-2. **Availability Check**: For each slot, finds faculty available at that time
-3. **Fair Distribution**: Selects the least-used faculty to ensure equal workload
-4. **Conflict Prevention**: Ensures no faculty is assigned to multiple periods simultaneously
+### Key Components
 
-### Dynamic Period Management
+**`Header.jsx`** — Top bar with logo and system title, shown on all pages.
 
-- Settings page allows 1-9 periods per day
-- Faculty Management automatically shows correct number of columns
-- Timetable adapts to display configured periods
-- Break times are intelligently inserted between periods
+**`DashboardCard.jsx`** — Reusable card used on the Admin Dashboard for navigation.
 
-### Data Relationships
-
-```
-Department ─── has many ──→ Subjects
-                           └──→ Faculty
-                           └──→ Timetable
-
-Subject ─── belongs to ──→ Department
-        └── has many ──→ Faculty
-
-Faculty ─── belongs to ──→ Subject
-        └── belongs to ──→ Department
-        └── has ──→ Availability
-```
+**`constants/subjects.js`** — Static grouped subject options used in the faculty form's React-Select dropdown.
 
 ---
 
-## 🧪 Testing
+## Database Models
 
-### Manual Testing Checklist
-
-- [ ] Add faculty with different availability patterns
-- [ ] Generate timetable for each department
-- [ ] Verify no conflicts in generated timetable
-- [ ] Test with different period configurations (5, 7, 9 periods)
-- [ ] Test with different break time settings
-- [ ] Edit faculty and regenerate timetable
-- [ ] Export timetable to PDF
-- [ ] Test responsiveness on different screen sizes
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Issue: MongoDB Connection Error**
+### Faculty
 ```
-Solution: Ensure MongoDB is running
-- Windows: Check Services → MongoDB Server
-- Mac/Linux: Run `sudo systemctl status mongod`
+name         String (required)
+subject      ObjectId → Subject
+department   ObjectId → Department
+section      ObjectId → Section
+availability [{ day: String, periods: [Number] }]
 ```
 
-**Issue: Port Already in Use**
+### Section
 ```
-Solution: Change port in .env or kill existing process
-- Find process: `lsof -i :5000` (Mac/Linux) or `netstat -ano | findstr :5000` (Windows)
-- Kill process: `kill -9 <PID>`
-```
-
-**Issue: No Faculty Found for Department**
-```
-Solution: Ensure faculty members are added with correct department
-- Check that subject's department matches the selected department
-- Verify faculty has availability set
+code         String (e.g. "2A", "3H")
+name         String
+department   ObjectId → Department
+academicYear "1st Year" | "2nd Year" | "3rd Year" | "4th Year"
+year         Number (1–4)
+cycle        "Physics" | "Chemistry" | null
+capacity     Number (default 60)
 ```
 
-**Issue: Periods Not Showing in Faculty Management**
+### Settings (Singleton)
 ```
-Solution: Check Settings configuration
-- Go to Settings page
-- Verify "Number of Periods" is set correctly (1-9)
-- Refresh Faculty Management page
+workingHours   { startTime: String, endTime: String }
+periodDuration Number (30–120 min)
+numberOfPeriods Number (1–9)
+breakTimes     [{ name, startTime, endTime, enabled }]
+singleton      Boolean (unique: true — only 1 document allowed)
+```
+
+### Timetable
+```
+department  ObjectId → Department
+section     ObjectId → Section
+timetable   Object (nested: { day: { period: { facultyId, facultyName, subjectId, subjectName, subjectCode } } })
 ```
 
 ---
 
-## 🤝 Contributing
+## Timetable Generation Logic
 
-Contributions are welcome! Please follow these guidelines:
+The core algorithm lives in `utils/timetableGenerator.js`:
 
-### How to Contribute
+1. **Fetch settings** — reads `numberOfPeriods` from the Settings singleton.
+2. **Filter faculty** — queries faculty by both `departmentId` AND `sectionId` to ensure only relevant assignments are used.
+3. **Initialize empty timetable** — creates a `{ day: { period: null } }` structure for all 5 days × N periods.
+4. **Fill slots** — for each day/period combination:
+   - Finds all faculty available at that slot (via their `availability` array).
+   - Sorts available faculty by usage count (ascending) to distribute load evenly.
+   - Assigns the least-used faculty member to that slot.
+5. **Persist** — saves or updates the generated timetable in the `Timetable` collection (upsert by department + section).
 
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some AmazingFeature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-5. **Open a Pull Request**
+### Conflict Prevention (Double Layer)
 
-### Coding Standards
+**Frontend:** When name or section changes in the faculty form, the app scans all existing faculty records and marks conflicting slots red/disabled before the user even submits.
 
-- Use meaningful variable and function names
-- Add comments for complex logic
-- Follow existing code style
-- Test thoroughly before submitting PR
+**Backend:** The `facultyController` re-validates on every POST/PUT:
+- Checks if the same faculty name already has an overlapping slot in another section.
+- Checks if any other faculty member is already teaching the same section at that slot.
+- Returns a descriptive error message identifying the conflicting faculty, section, day, and period(s).
 
 ---
 
-## 📝 Future Enhancements
+## Default Settings
 
-- [ ] User authentication and authorization
-- [ ] Multi-semester support
-- [ ] Faculty workload analytics
-- [ ] Conflict resolution suggestions
-- [ ] Email notifications for timetable changes
-- [ ] Mobile app version
-- [ ] Advanced reporting (Excel export, charts)
-- [ ] Room allocation integration
-- [ ] Classroom capacity management
-- [ ] Teacher preference weightage
+| Setting | Default Value |
+|---------|--------------|
+| Start Time | 9:00 AM |
+| End Time | 5:00 PM |
+| Period Duration | 60 minutes |
+| Number of Periods | 6 |
+| Lunch Break | 1:00 PM – 2:00 PM (enabled) |
+| Short Break | 11:00 AM – 11:15 AM (disabled) |
 
 ---
 
-## 📄 License
+## Notes
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### MIT License Summary
-- ✅ Commercial use
-- ✅ Modification
-- ✅ Distribution
-- ✅ Private use
-
----
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: Ankit Umadi
-
-
----
-
-## 🙏 Acknowledgments
-
-- React.js community for excellent documentation
-- MongoDB for robust NoSQL database
-- Express.js for minimal and flexible framework
-- All contributors and testers
-
----
-
-
-## 🌟 Show Your Support
-
-If you find this project helpful, please give it a ⭐️ on GitHub!
-
----
-
-<div align="center">
-
-**Made with ❤️ for Educational Institutions**
-
-[⬆ Back to Top](#-faculty-management--timetable-generator)
-
-
-</div>
+- 1st year sections are excluded from the section picker (filtered at API level: `year: { $gt: 1 }`).
+- Each department gets 36 sections (12 per year × 3 years) when seeded.
+- The Settings model enforces singleton behavior via a `pre('save')` hook — only one settings document can exist.
+- CORS is configured for `http://localhost:5173` (Vite dev server). Update `index.js` for production.
